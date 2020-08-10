@@ -176,7 +176,7 @@ class ReLuNet(nn.Module):
 		return x
 
 
-def plot_IRL_comparison(IRL):
+def plot_IRL_comparison(IRL, viz_idx=range(88, 91)):
 	"""
 		Plot the set of demonstrations & the current set of induced trajectories with same start-goal position.
 		Color denotes the value of the current cost/reward function.
@@ -191,7 +191,7 @@ def plot_IRL_comparison(IRL):
 	for s_g_trajs in IRL.s_g_exp_trajs:
 		traj = s_g_trajs[0]
 		labels = IRL.function(traj)
-		euclidean = traj[:, 88:91]
+		euclidean = traj[:, viz_idx]
 		to_plot = np.vstack((to_plot, np.hstack((euclidean, labels))))
 	df = pd.DataFrame(to_plot)
 	fig = go.Figure(data=go.Scatter3d(x=df.iloc[:, 0], y=df.iloc[:, 1], z=df.iloc[:, 2], mode='markers',
@@ -211,7 +211,7 @@ def plot_IRL_comparison(IRL):
 	for start, goal, goal_pose in zip(IRL.starts, IRL.goals, g_poses):
 		traj = IRL.get_trajs_with_cur_reward(1, 0.01, start, goal, goal_pose)[0]
 		labels = IRL.function(traj)
-		euclidean = traj[:, 88:91]
+		euclidean = traj[:, viz_idx]
 		to_plot = np.vstack((to_plot, np.hstack((euclidean, labels))))
 	df = pd.DataFrame(to_plot)
 	fig = go.Figure(data=go.Scatter3d(x=df.iloc[:, 0], y=df.iloc[:, 1], z=df.iloc[:, 2], mode='markers',

@@ -84,7 +84,6 @@ def get_coords_gt_cost(expert_env, parent_dir, gen=False, n_waypoints=10000):
 	for index in range(len(raw_waypts)):
 		for feat in range(len(feat_idx)):
 			features[feat][index] = expert_env.featurize_single(raw_waypts[index,:7], feat_idx[feat])
-
 	features = np.array(features).T
 	gt_cost = np.matmul(features, np.array(expert_env.weights).reshape(-1,1))
 
@@ -102,7 +101,7 @@ def plot_learned_traj(feature_function, train_data, env, feat='table'):
 	fig.show()
 
 
-def plot_learned3D(parent_dir, feature_function, env, feat='table', title='Learned function over 3D Reachable Set'):
+def plot_learned3D(parent_dir, feature_function, env, viz_idx=range(88, 91), feat='table', title='Learned function over 3D Reachable Set'):
 	"""
 		Plot the learned 3D ball over the 10.000 points Test Set in the gt_data
 	"""
@@ -113,7 +112,8 @@ def plot_learned3D(parent_dir, feature_function, env, feat='table', title='Learn
 	for dp in train:
 		train_raw = np.vstack((train_raw, env.raw_features(dp)))
 	labels = feature_function(train_raw)
-	euclidean = angles_to_coords(train, feat, env)
+	euclidean = train_raw[:, viz_idx] 
+	#euclidean = angles_to_coords(train, feat, env)
 	fig = px.scatter_3d(x=euclidean[:, 0], y=euclidean[:, 1], z=euclidean[:, 2], color=labels)
 	fig.update_layout(title=title)
 	fig.show()

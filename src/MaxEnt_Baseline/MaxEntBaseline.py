@@ -114,13 +114,13 @@ class DeepMaxEntIRL:
 			if torchify:
 				return y
 			else:
-				return y.detach()
+				return y.detach().numpy()
 		else:
 			y = (y - self.min_label) / (self.max_label - self.min_label)
 			if torchify:
 				return y
 			else:
-				return y.detach()
+				return y.detach().numpy()
 
 	def torchify(self, x):
 		"""
