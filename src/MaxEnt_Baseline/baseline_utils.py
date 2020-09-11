@@ -176,7 +176,7 @@ class ReLuNet(nn.Module):
 		return x
 
 
-def plot_IRL_comparison(IRL, viz_idx=range(88, 91)):
+def plot_IRL_comparison(IRL, viz_idx=range(88, 91), frame_idx=None):
 	"""
 		Plot the set of demonstrations & the current set of induced trajectories with same start-goal position.
 		Color denotes the value of the current cost/reward function.
@@ -184,46 +184,28 @@ def plot_IRL_comparison(IRL, viz_idx=range(88, 91)):
 		Input:
 		IRL		a DeepMaxEntIRL object
 	"""
-	# get laptop position
-	laptop = IRL.env.object_centers['LAPTOP_CENTER']
-	# Experts
-	to_plot = np.empty((0, 4))
-	for s_g_trajs in IRL.s_g_exp_trajs:
-		traj = s_g_trajs[0]
-		labels = IRL.function(traj)
-		euclidean = traj[:, viz_idx]
-		to_plot = np.vstack((to_plot, np.hstack((euclidean, labels))))
-	df = pd.DataFrame(to_plot)
-	fig = go.Figure(data=go.Scatter3d(x=df.iloc[:, 0], y=df.iloc[:, 1], z=df.iloc[:, 2], mode='markers',
-									  marker=dict(color=df.iloc[:, 3], showscale=True), showlegend=False))
+	plot_trajs([s_g_trajs[0] for s_g_trajs in IRL.s_g_exp_trajs],
+			   IRL.env.object_centers,
+			   'Expert Trajectory with learned reward',
+			   IRL.function,
+			   viz_idx,
+			   frame_idx)
 
-	fig.add_scatter3d(x=[laptop[0]], y=[laptop[1]], z=[laptop[2]], mode='markers',
-					  marker=dict(size=10, color='black'), showlegend=False)
-	fig.update_layout(title='Expert Trajectory with learned reward')
-	fig.show()
-
-	to_plot = np.empty((0, 4))
 	if IRL.goal_poses is None:
 		g_poses = [None for _ in range(len(IRL.starts))]
 	else:
 		g_poses = IRL.goal_poses
-
+	trajs = []
 	for start, goal, goal_pose in zip(IRL.starts, IRL.goals, g_poses):
-		traj = IRL.get_trajs_with_cur_reward(1, 0.01, start, goal, goal_pose)[0]
-		labels = IRL.function(traj)
-		euclidean = traj[:, viz_idx]
-		to_plot = np.vstack((to_plot, np.hstack((euclidean, labels))))
-	df = pd.DataFrame(to_plot)
-	fig = go.Figure(data=go.Scatter3d(x=df.iloc[:, 0], y=df.iloc[:, 1], z=df.iloc[:, 2], mode='markers',
-									  marker=dict(color=df.iloc[:, 3], showscale=True), showlegend=False))
+		trajs.append(IRL.get_trajs_with_cur_reward(1, 0.01, start, goal, goal_pose)[0])
+	plot_trajs(trajs,
+			   IRL.env.object_centers,
+			   'Current Trajectory with learned reward',
+			   IRL.function,
+			   viz_idx,
+			   frame_idx)
 
-	fig.add_scatter3d(x=[laptop[0]], y=[laptop[1]], z=[laptop[2]], mode='markers',
-					  marker=dict(size=10, color='black'), showlegend=False)
-	fig.update_layout(title='Current Trajectory with learned reward')
-	fig.show()
-
-
-def plot_trajs(demos, object_centers, title='some_title', func=None):
+def plot_trajs(demos, object_centers, title='some_title', func=None, viz_idx=range(88, 91), frame_idx=None):
 	"""
 		Plot a set of demonstrations in 3D
 		----
@@ -243,21 +225,47 @@ def plot_trajs(demos, object_centers, title='some_title', func=None):
 			labels = func(traj)
 		else:
 			labels = traj[:, 90].reshape((-1, 1))
-		euclidean = traj[:, 88:91]
+		euclidean = traj[:, viz_idx]
 		points = np.vstack((points, np.hstack((euclidean, labels))))
 	df = pd.DataFrame(points)
 	fig = go.Figure(data=go.Scatter3d(x=df.iloc[:, 0], y=df.iloc[:, 1], z=df.iloc[:, 2], mode='markers',
 									  marker=dict(color=df.iloc[:, 3], showscale=True), showlegend=False))
-	fig.data[0]['text'] = ['color: ' + str(round(i,2)) for i in fig.data[0]['marker']['color']]
+	#fig.data[0]['text'] = ['color: ' + str(round(i,2)) for i in fig.data[0]['marker']['color']]
+
+	if frame_idx is not None:
+		axes_points = np.empty((0, 12))
+		for traj in demos:
+			euclidean = traj[:, viz_idx]
+			axis_vectors = [euclidean]
+			for axis_num in range(3):
+				start_idx = 7 + 9 * frame_idx + axis_num
+				axis_vectors.append(euclidean + 0.1*traj[:, start_idx: start_idx+9: 3])
+			axes_points = np.vstack((axes_points, np.hstack(axis_vectors)))
+		for axis_num in range(3):
+			color = [0, 0, 0]
+			color[axis_num] = 255
+			color = tuple(color)
+			add_fig_vectors(fig,
+							axes_points[:, 0], axes_points[:, 1], axes_points[:, 2],
+							axes_points[:, 3+axis_num*3], axes_points[:, 4+axis_num*3], axes_points[:, 5+axis_num*3],
+							color=color)
+
+
 
 	fig.add_scatter3d(x=[laptop[0]], y=[laptop[1]], z=[laptop[2]], mode='markers',
 					  marker=dict(size=10, color='black'), showlegend=False, hovertext=['Laptop'])
-
 	fig.add_scatter3d(x=[human[0]], y=[human[1]], z=[human[2]], mode='markers',
 					  marker=dict(size=10, color='red'), showlegend=False, hovertext=['Human'])
 	fig.update_layout(title=title)
 	fig.show()
 
+def add_fig_vectors(fig, base_x, base_y, base_z, head_x, head_y, head_z, color=(255, 0, 0)):
+	for x, y, z, u, v, w in zip(base_x, base_y, base_z, head_x, head_y, head_z):
+		fig.add_scatter3d(x=[x, u], y=[y, v], z=[z, w],
+						  line = dict(color = "rgb"+str(color),
+                        			  width = 6),
+						  marker = dict(size=0),
+						  showlegend=False)
 
 class TorchFeatureTransform(object):
 	"""
