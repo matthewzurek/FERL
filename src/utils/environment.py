@@ -58,19 +58,19 @@ class Environment(object):
 		# Initialize the utility function weight vector.
 		self.weights = feat_weights
 
-	        # Initialize LF_dict optionally for learned features.
-        	self.LF_dict = LF_dict
+		# Initialize LF_dict optionally for learned features.
+		self.LF_dict = LF_dict
 
 	# -- Compute features for all waypoints in trajectory. -- #
 	def featurize(self, waypts, feat_idx=None):
 		"""
 		Computes the features for a given trajectory.
 		---
-        Params:
-            waypts -- trajectory waypoints
-            feat_idx -- list of feature indices (optional)
-        Returns:
-            features -- list of feature values (T x num_features)
+		Params:
+			waypts -- trajectory waypoints
+			feat_idx -- list of feature indices (optional)
+		Returns:
+			features -- list of feature values (T x num_features)
 		"""
 		# if no list of idx is provided use all of them
 		if feat_idx is None:
@@ -90,11 +90,11 @@ class Environment(object):
 		"""
 		Computes given feature value for a given waypoint.
 		---
-        Params:
-            waypt -- single waypoint
-            feat_idx -- feature index
-        Returns:
-            featval -- feature value
+		Params:
+			waypt -- single waypoint
+			feat_idx -- feature index
+		Returns:
+			featval -- feature value
 		"""
 		# If it's a learned feature, feed in raw_features to the NN.
 		if self.feature_list[feat_idx] == 'learned_feature':
@@ -113,10 +113,10 @@ class Environment(object):
 		"""
 		Computes raw state space features for a given waypoint.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            raw_features -- list of raw feature values
+		Params:
+			waypt -- single waypoint
+		Returns:
+			raw_features -- list of raw feature values
 		"""
 		object_coords = np.array([self.object_centers[x] for x in self.object_centers.keys()])
 		if torch.is_tensor(waypt):
@@ -139,10 +139,10 @@ class Environment(object):
 		"""
 		Computes torch transforms for given waypoint.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            Tall -- Transform in torch for every joint (7D)
+		Params:
+			waypt -- single waypoint
+		Returns:
+			Tall -- Transform in torch for every joint (7D)
 		"""
 		# Manually compute a link transform given theta, alpha, and D (a is assumed to be 0).
 		def transform(theta, alpha, D):
@@ -223,13 +223,13 @@ class Environment(object):
 
 	def new_learned_feature(self, nb_layers, nb_units, checkpoint_name=None):
 		"""
-        Adds a new learned feature to the environment.
-        --
-        Params:
-            nb_layers -- number of NN layers
-            nb_units -- number of NN units per layer
-            checkpoint_name -- name of NN model to load (optional)
-        """
+		Adds a new learned feature to the environment.
+		--
+		Params:
+			nb_layers -- number of NN layers
+			nb_units -- number of NN units per layer
+			checkpoint_name -- name of NN model to load (optional)
+		"""
 		self.learned_features.append(LearnedFeature(nb_layers, nb_units, self.LF_dict))
 		self.feature_list.append('learned_feature')
 		self.num_features += 1
@@ -249,10 +249,10 @@ class Environment(object):
 		"""
 		Computes efficiency feature for waypoint, confirmed to match trajopt.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar feature
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar feature
 		"""
 
 		return np.linalg.norm(waypt[:7] - waypt[7:])**2
@@ -261,13 +261,13 @@ class Environment(object):
 
 	def origin_features(self, waypt):
 		"""
-		Computes the total feature value over waypoints based on 
+		Computes the total feature value over waypoints based on
 		y-axis distance to table.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar feature
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar feature
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -282,13 +282,13 @@ class Environment(object):
 
 	def table_features(self, waypt, prev_waypt=None):
 		"""
-		Computes the total feature value over waypoints based on 
+		Computes the total feature value over waypoints based on
 		z-axis distance to table.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar feature
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar feature
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -305,10 +305,10 @@ class Environment(object):
 		Computes the coffee orientation feature value for waypoint
 		by checking if the EE is oriented vertically.
 		---
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar feature
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar feature
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -324,12 +324,12 @@ class Environment(object):
 	def laptop_features(self, waypt):
 		"""
 		Computes distance from end-effector to laptop in xy coords
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar distance where
-                0: EE is at more than 0.3 meters away from laptop
-                +: EE is closer than 0.3 meters to laptop
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar distance where
+				0: EE is at more than 0.3 meters away from laptop
+				+: EE is closer than 0.3 meters to laptop
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -348,12 +348,12 @@ class Environment(object):
 	def human_features(self, waypt):
 		"""
 		Computes distance from end-effector to human in xy coords
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar distance where
-                0: EE is at more than 0.4 meters away from human
-                +: EE is closer than 0.4 meters to human
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar distance where
+				0: EE is at more than 0.4 meters away from human
+				+: EE is closer than 0.4 meters to human
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -372,12 +372,12 @@ class Environment(object):
 	def proxemics_features(self, waypt):
 		"""
 		Computes distance from end-effector to human proxemics in xy coords
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar distance where
-                0: EE is at more than 0.3 meters away from human
-                +: EE is closer than 0.3 meters to human
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar distance where
+				0: EE is at more than 0.3 meters away from human
+				+: EE is closer than 0.3 meters to human
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -399,12 +399,12 @@ class Environment(object):
 	def betweenobjects_features(self, waypt):
 		"""
 		Computes distance from end-effector to 2 objects in xy coords.
-        Params:
-            waypt -- single waypoint
-        Returns:
-            dist -- scalar distance where
-			    0: EE is at more than 0.2 meters away from the objects and between
-			    +: EE is closer than 0.2 meters to the objects and between
+		Params:
+			waypt -- single waypoint
+		Returns:
+			dist -- scalar distance where
+				0: EE is at more than 0.2 meters away from the objects and between
+				+: EE is closer than 0.2 meters to the objects and between
 		"""
 		if len(waypt) < 10:
 			waypt = np.append(waypt.reshape(7), np.array([0,0,0]))
@@ -492,6 +492,3 @@ class Environment(object):
 		"""
 		self.env.Destroy()
 		RaveDestroy() # destroy the runtime
-
-
-

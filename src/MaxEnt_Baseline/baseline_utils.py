@@ -263,7 +263,7 @@ def add_fig_vectors(fig, base_x, base_y, base_z, head_x, head_y, head_z, color=(
 	for x, y, z, u, v, w in zip(base_x, base_y, base_z, head_x, head_y, head_z):
 		fig.add_scatter3d(x=[x, u], y=[y, v], z=[z, w],
 						  line = dict(color = "rgb"+str(color),
-                        			  width = 6),
+									  width = 6),
 						  marker = dict(size=0),
 						  showlegend=False)
 

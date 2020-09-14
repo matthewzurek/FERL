@@ -8,8 +8,8 @@ class GT_Reward_Expert:
 	gt_weights		List of weights for the feat_list features
 	feat_list		List of strings with the active features
 	gen				The mode with which induced near optimal trajectories with the GT cost are calculated
-	  				can be 'waypt' (get TrajOpt optimal trajectory and perturb waypoints)
-	  				or 'cost' (perturb the cost function slightly and get TrajOpt optimal trajectories for all of them)
+					can be 'waypt' (get TrajOpt optimal trajectory and perturb waypoints)
+					or 'cost' (perturb the cost function slightly and get TrajOpt optimal trajectories for all of them)
 
 	starts			list of start positions
 	goals			list of goal positions

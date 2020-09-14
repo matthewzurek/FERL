@@ -15,8 +15,8 @@ class DeepMaxEntIRL:
 	goal_poses		List of goal poses for each start & goal pair
 	known_feat_list	List of strings with the known features
 	gen				The mode with which induced near optimal trajectories with the current cost are calculated
-	  				can be 'waypt' (get TrajOpt optimal trajectory and perturb waypoints)
-	  				or 'cost' (perturb the cost function slightly and get TrajOpt optimal trajectories for all of them)
+					can be 'waypt' (get TrajOpt optimal trajectory and perturb waypoints)
+					or 'cost' (perturb the cost function slightly and get TrajOpt optimal trajectories for all of them)
 	T, timestep		Settings for TrajOpt
 	obj_center_dict	Dict of human & laptop positions used when calculating the known feature values
 	feat_range_dict	Dict of factors for the different features to scale them to 0-1. -> used to calculate known features
