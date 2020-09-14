@@ -136,9 +136,9 @@ class DeepMaxEntIRL:
 		Update the max & min labels used for normalization based on all states in the demonstrations.
 		"""
 		# Note: if there are few expert demo, it might lead to too low max_label (feature values get high)
-		all_logits = self.function(self.full_exp_data, norm=False).view(-1).detach()
-		self.max_label = np.amax(all_logits.numpy())
-		self.min_label = np.amin(all_logits.numpy())
+		all_logits = self.function(self.full_exp_data, norm=False)
+		self.max_label = np.amax(all_logits)
+		self.min_label = np.amin(all_logits)
 
 	def get_trajs_with_cur_reward(self, n_traj, std, start, goal, pose):
 		"""
